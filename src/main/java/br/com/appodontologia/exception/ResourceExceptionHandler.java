@@ -1,6 +1,7 @@
 package br.com.appodontologia.exception;
 
 import br.com.appodontologia.util.Constants;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

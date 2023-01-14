@@ -3,6 +3,7 @@ package br.com.appodontologia.controller;
 import br.com.appodontologia.configuration.SwaggerConfiguration;
 import br.com.appodontologia.domain.dto.users.request.SigninRequest;
 import br.com.appodontologia.domain.dto.users.request.SignupRequest;
+import br.com.appodontologia.domain.dto.users.response.JwtResponse;
 import br.com.appodontologia.service.UserService;
 import br.com.appodontologia.util.Constants;
 import io.swagger.annotations.Api;
@@ -16,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Slf4j
@@ -49,6 +51,18 @@ public class UserController {
     @ApiOperation(value = "Realiza a autenticação de um usuário existente")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody SigninRequest signinRequest) {
         return ResponseEntity.ok(userService.authenticate(signinRequest));
+    }
+
+    @PostMapping("/refresh_token")
+    @ApiResponses(value = {
+            @ApiResponse(code = Constants.STATUS_CODE_OK, message = Constants.API_RESPONSE_OK),
+            @ApiResponse(code = Constants.STATUS_CODE_BAD_REQUEST, message = Constants.API_RESPONSE_BAD_REQUEST),
+            @ApiResponse(code = Constants.STATUS_CODE_UNAUTHORIZED, message = Constants.API_RESPONSE_UNAUTHORIZED),
+            @ApiResponse(code = Constants.STATUS_CODE_INTERNAL_ERROR_SERVER, message = Constants.API_RESPONSE_INTERNAL_ERROR_SERVER)
+    })
+    @ApiOperation(value = "Realiza a geração de um novo token JWT")
+    public JwtResponse refreshToken(HttpServletRequest request) {
+        return userService.refreshToken(request);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")

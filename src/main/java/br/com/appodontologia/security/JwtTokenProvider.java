@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
@@ -33,6 +35,8 @@ import static java.util.stream.Collectors.joining;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     private SecretKey secretKey;
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
     private final EnvironmentConfiguration env;
 
     @PostConstruct
@@ -52,30 +56,30 @@ public class JwtTokenProvider {
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + env.getJwtTimeExpiration());
-        String token = Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(validity)
-                .signWith(this.secretKey, SignatureAlgorithm.HS512)
-                .compact();
+        String token = Jwts.builder().setClaims(claims).setIssuedAt(now).setExpiration(validity).signWith(this.secretKey, SignatureAlgorithm.HS512).compact();
 
         return Constants.FIELD_BEARER + token;
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(Constants.FIELD_BEARER)) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(this.secretKey).build().parseClaimsJws(token).getBody();
         Object authoritiesClaim = claims.get(Constants.FIELD_AUTHORITIES);
 
-        Collection<? extends GrantedAuthority> authorities = authoritiesClaim == null ? AuthorityUtils.NO_AUTHORITIES
-                : AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesClaim.toString());
+        Collection<? extends GrantedAuthority> authorities = authoritiesClaim == null ? AuthorityUtils.NO_AUTHORITIES : AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesClaim.toString());
 
         User principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    public boolean validateToken(String token,
-                                 HttpServletRequest request,
-                                 HttpServletResponse response) throws IOException {
+    public boolean validateToken(String token) throws IOException {
         try {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(this.secretKey).build().parseClaimsJws(token);
             log.info("expiration date: {}", claims.getBody().getExpiration());

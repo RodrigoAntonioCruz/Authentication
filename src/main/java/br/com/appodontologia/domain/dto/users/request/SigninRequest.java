@@ -1,6 +1,7 @@
 package br.com.appodontologia.domain.dto.users.request;
 
 import br.com.appodontologia.util.Constants;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
 
 @Data
 @Builder
+@ApiModel
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor

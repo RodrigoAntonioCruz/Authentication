@@ -6,15 +6,21 @@ import br.com.appodontologia.domain.dto.users.response.JwtResponse;
 import br.com.appodontologia.domain.dto.users.response.UserResponse;
 import br.com.appodontologia.domain.entity.Users;
 import br.com.appodontologia.repository.UserRepository;
+import br.com.appodontologia.security.JwtAuthenticationProvider;
 import br.com.appodontologia.security.JwtTokenProvider;
 import br.com.appodontologia.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Slf4j
 @Service
@@ -40,6 +46,16 @@ public class UserService {
 
         var authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+        return JwtResponse
+                .builder()
+                .token(jwtTokenProvider.generateToken(authentication))
+                .build();
+    }
+
+    public JwtResponse refreshToken(HttpServletRequest request) {
+        var authentication = jwtTokenProvider.getAuthentication(jwtTokenProvider.resolveToken(request));
+
         return JwtResponse
                 .builder()
                 .token(jwtTokenProvider.generateToken(authentication))

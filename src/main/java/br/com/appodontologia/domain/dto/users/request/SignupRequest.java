@@ -3,6 +3,7 @@ package br.com.appodontologia.domain.dto.users.request;
 
 import br.com.appodontologia.util.Constants;
 import br.com.appodontologia.validator.UserValidator;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 @Data
 @Builder
+@ApiModel
 @UserValidator
 @NoArgsConstructor
 @AllArgsConstructor

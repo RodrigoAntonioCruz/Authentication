@@ -4,11 +4,13 @@ import br.com.appodontologia.repository.UserRepository;
 import br.com.appodontologia.security.JwtAuthenticationFilter;
 import br.com.appodontologia.security.JwtAuthenticationProvider;
 import br.com.appodontologia.security.JwtTokenProvider;
+import br.com.appodontologia.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +25,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
@@ -34,18 +35,17 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 public class SecurityConfiguration {
     private final Environment environment;
     private final EnvironmentConfiguration env;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
-
     private static final String[] PUBLIC_MATCHERS = {
-            "/v2/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-resources/**",
-            "/swagger-ui.html",
-            "/webjars/**"
+            Constants.API_DOCS,
+            Constants.SWAGGER_UI,
+            Constants.SWAGGER_RESOURCES,
+            Constants.SWAGGER_UI_HTML,
+            Constants.WEBJARS
     };
 
     private static final String[] PUBLIC_MATCHERS_GET = {
@@ -54,6 +54,16 @@ public class SecurityConfiguration {
 
     private static final String[] PUBLIC_MATCHERS_POST = {
             "/users/**"
+    };
+
+    private static final String[] ALLOWED_METHODS = {
+            HttpMethod.GET.name(),
+            HttpMethod.POST.name(),
+            HttpMethod.PATCH.name(),
+            HttpMethod.PUT.name(),
+            HttpMethod.DELETE.name(),
+            HttpMethod.OPTIONS.name(),
+            HttpMethod.HEAD.name()
     };
 
     @Bean
@@ -73,14 +83,14 @@ public class SecurityConfiguration {
 
     @Bean
     public CorsFilter corsFilter() {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        final CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOrigins(env.getAllowedEndpoints());
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(List.of("POST", "GET", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"));
-        config.setMaxAge(3600L);
-        source.registerCorsConfiguration("/**", config);
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedOrigins(env.getAllowedEndpoints());
+        configuration.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION));
+        configuration.setAllowedMethods(List.of(ALLOWED_METHODS));
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
         return new CorsFilter(source);
     }
 

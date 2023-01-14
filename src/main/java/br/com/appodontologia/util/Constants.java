@@ -1,5 +1,8 @@
 package br.com.appodontologia.util;
 
+import java.util.List;
+import java.util.Set;
+
 public class Constants {
 
     /**
@@ -118,13 +121,10 @@ public class Constants {
      */
 
     public static final String USER_TAG_DESCRIPTION = "Realiza operações referente aos usuários na api";
-
     public static final String USER_TAG_NAME = "Users";
     public static final String HEADER = "header";
     public static final String DESCRIPTION = "accessEverything";
     public static final String SCOPE = "global";
-    public static final String FIELD_JWT = "JWT";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String API_RESPONSE_CREATED = "Cadastrado com sucesso!";
     public static final String API_RESPONSE_OK = "Login efetuado com sucesso!";
     public static final String API_RESPONSE_BAD_REQUEST = "Dados não processados devido a solicitação incorreta ou falta de informações.";
@@ -133,6 +133,15 @@ public class Constants {
     public static final String API_RESPONSE_UNAUTHORIZED = "Acesso não autorizado!";
     public static final String API_RESPONSE_INTERNAL_ERROR_SERVER = "Sistema indisponível";
     public static final String API_RESPONSE_NO_CONTENT = "Sem conteúdo";
+
+    /**
+     * CONSTANTS_FILES_ALLOWED
+     */
+    public static final String API_DOCS = "/v2/api-docs/**";
+    public static final String SWAGGER_UI = "/swagger-ui/**";
+    public static final String SWAGGER_RESOURCES = "/swagger-resources/**";
+    public static final String SWAGGER_UI_HTML = "/swagger-ui.html";
+    public static final String WEBJARS = "/webjars/**";
 
     /**
      * CONSTANTS_ERRORS

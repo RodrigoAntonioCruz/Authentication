@@ -23,6 +23,7 @@ public final class ExceptionResolver {
 	public static void getRootException(HttpStatus status, HttpServletRequest request,
 									    HttpServletResponse response, String error,
 									    String message) throws IOException {
+		response.reset();
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(status.value());
 		response.getWriter().write(new ObjectMapper().writeValueAsString(new BusinessException(System.currentTimeMillis(),
